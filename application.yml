@@ -1,0 +1,27 @@
+resilience4j.circuitbreaker:
+  instances:
+    promoClient:
+      # Cấu hình cơ bản của Circuit Breaker
+      registerHealthIndicator: true
+      slidingWindowSize: 100               # Theo dõi trong 100 request gần nhất
+      minimumNumberOfCalls: 10             # Cần ít nhất 10 request để bắt đầu tính toán
+      failureRateThreshold: 50             # Ngắt mạch nếu tỷ lệ lỗi > 50%
+      waitDurationInOpenState: 10s         # Thời gian chờ ở trạng thái OPEN trước khi sang HALF_OPEN
+      
+      # =====================================================================================
+      # CÁCH 1: PHỚT LỜ LỖI NGHIỆP VỤ (Khuyên dùng trong trường hợp này)
+      # Bất kỳ lỗi nào nằm trong danh sách này sẽ KHÔNG bị tính là failed request.
+      # =====================================================================================
+      ignoreExceptions:
+        - com.example.exception.VoucherNotFoundException
+        - com.example.exception.InvalidVoucherException
+      
+      # =====================================================================================
+      # CÁCH 2: CHỈ ĐỊNH CÁC LỖI HỆ THỐNG CẦN GHI NHẬN (Tùy chọn)
+      # Nếu cấu hình recordExceptions, CB sẽ CHỈ ngắt mạch khi gặp các lỗi liệt kê ở đây.
+      # =====================================================================================
+      recordExceptions:
+        - java.util.concurrent.TimeoutException
+        - java.net.ConnectException
+        - org.springframework.web.client.ResourceAccessException
+        - org.springframework.web.client.HttpServerErrorException.InternalServerError # Lỗi 500
